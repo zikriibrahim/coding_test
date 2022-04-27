@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Email;
 use App\Models\Event;
+use App\Mail\SendMail;
+use Mail;
 
 class EventController extends Controller
 {
@@ -37,6 +40,7 @@ class EventController extends Controller
      */
     public function store(Request $request)
     {
+        
         $validate = $request->validate(
             [
                 'name' => 'required',
@@ -47,7 +51,14 @@ class EventController extends Controller
         $event = Event::create($request->all());
         $event->save();
 
-        return redirect()->route('events.index')->with('message', 'Event Created Successfully');
+        $data=array(
+            'name' => 'admin@mail.com',
+            'message' =>'Event Created Successfully',
+        );
+
+        Mail::to('admin@mail.com')->send(new SendMail($data));
+
+        return redirect()->route('events.index')->with('message', 'Event Created And Send Email Successfully');
     }
 
     /**
